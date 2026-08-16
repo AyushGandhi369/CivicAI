@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Public Document AI – Turn complex public information into simple, understandable language.">
+    <title>Public Document AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- ── App Header ── -->
+    <header class="app-header">
+        <div class="header-inner">
+            <div class="header-logo">📄 Public Document AI</div>
+            <p class="header-tagline">Turn complex public information into simple, understandable language.</p>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- ── Input Card ── -->
+        <section class="card input-card fade-in">
+            <h2 class="card-title">
+                <span class="card-icon">📝</span>
+                Paste or Upload Your Document
+            </h2>
+
+            <textarea id="text-input" placeholder="Paste complex legal, government, or official text here..." rows="7"></textarea>
+
+            <div class="or-divider">
+                <span class="or-line"></span>
+                <span class="or-text">OR</span>
+                <span class="or-line"></span>
+            </div>
+
+            <!-- Drag & Drop Upload Zone -->
+            <div id="drop-zone" class="drop-zone">
+                <div class="drop-zone-content">
+                    <span class="drop-icon">📁</span>
+                    <p class="drop-text">Drag & drop a PDF here, or <strong>click to browse</strong></p>
+                    <p id="file-name" class="file-name-display">No file selected</p>
+                </div>
+                <input type="file" id="pdf-input" accept=".pdf">
+            </div>
+
+            <button id="analyze-btn" class="btn-primary">
+                <span class="btn-icon">⚡</span>
+                Analyze Document
+            </button>
+        </section>
+
+        <!-- ── Loading Card ── -->
+        <section id="loading-card" class="card loading-card hidden">
+            <div class="loading-spinner"></div>
+            <p id="loading-message" class="loading-text">Extracting document...</p>
+            <div class="loading-bar">
+                <div class="loading-bar-fill"></div>
+            </div>
+        </section>
+
+        <!-- ── Result Card ── -->
+        <section id="result-card" class="card result-card hidden">
+            <div class="result-header">
+                <h2 id="result-title" class="result-doc-title">📄 AI Analysis Report</h2>
+                <span id="result-type-badge" class="doc-type-badge hidden">General</span>
+            </div>
+            <div id="result" class="result-content"></div>
+        </section>
+
+        <!-- ── Suggested Questions ── -->
+        <section id="suggested-section" class="suggested-section hidden">
+            <p class="suggested-label">💡 Try asking:</p>
+            <div id="suggested-questions" class="suggested-chips"></div>
+        </section>
+
+        <!-- ── Error Display ── -->
+        <div id="error-box" class="error-box hidden"></div>
+
+        <!-- ── Q&A Card ── -->
+        <section id="qa-section" class="card qa-card hidden">
+            <h2 class="card-title">
+                <span class="card-icon">💬</span>
+                Ask a Question About This Document
+            </h2>
+
+            <div class="qa-input-row">
+                <input type="text" id="question-input" placeholder="e.g. What are the deadlines mentioned?">
+                <button id="ask-btn" class="btn-primary btn-ask">
+                    <span class="btn-icon">➤</span>
+                    Ask
+                </button>
+            </div>
+
+            <div id="qa-loading" class="qa-loading hidden">
+                <div class="loading-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <span>Thinking...</span>
+            </div>
+
+            <div id="chat-history" class="chat-history"></div>
+        </section>
+
+    </main>
+
+    <!-- ── Footer ── -->
+    <footer class="app-footer">
+        Built for a hackathon with ❤️ — Powered by AI
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
