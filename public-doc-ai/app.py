@@ -1,6 +1,7 @@
 import os
+from functools import wraps
 import numpy as np
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from dotenv import load_dotenv
 from groq import Groq
 import pymupdf  # PyMuPDF for PDF text extraction + page rendering
@@ -732,12 +733,59 @@ def extract_text_from_pdf(pdf_file):
 # ROUTES
 # ──────────────────────────────────────────────────────────────────────
 
+
+def login_required(view_func):
+    """Protect authenticated routes."""
+    @wraps(view_func)
+    def wrapped_view(*args, **kwargs):
+        if not session.get("logged_in"):
+            return redirect(url_for("login"))
+        return view_func(*args, **kwargs)
+    return wrapped_view
+
+
 @app.route("/")
-def index():
+def root():
+    if session.get("logged_in"):
+        return redirect(url_for("dashboard"))
+    return redirect(url_for("login"))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+
+        valid_username = os.getenv("APP_USERNAME", "admin")
+        valid_password = os.getenv("APP_PASSWORD", "admin123")
+
+        if username == valid_username and password == valid_password:
+            session["logged_in"] = True
+            session["username"] = username
+            return redirect(url_for("dashboard"))
+
+        error = "Invalid username or password."
+
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+
+@app.route("/app")
+@login_required
+def dashboard():
     return render_template("index.html")
 
 
 @app.route("/api/analyze", methods=["POST"])
+@login_required
 def analyze():
     text = ""
     source = "text"
@@ -794,7 +842,7 @@ def analyze():
 
         # Store document server-side (not in cookie — avoids 4KB limit)
         sid = get_session_id()
-            session.permanent = True
+        session.permanent = True
         _document_store[sid] = text
 
         return jsonify({
@@ -816,6 +864,7 @@ def analyze():
 
 
 @app.route("/api/ask", methods=["POST"])
+@login_required
 def ask():
     """Answer a follow-up question grounded in the previously analyzed document."""
     # Get the question from JSON body
